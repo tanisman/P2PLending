@@ -1,0 +1,120 @@
+﻿extends layout
+
+block script
+    script.
+        $(document).ready(function() {
+            $("#lend").submit(function(e) {
+              $.ajax({
+                method: "POST",
+                url: "/wallet/#{address}/lend",
+                data: $(this).serialize()
+              }).done(function( msg ) {
+                    alert(msg);
+                });
+                e.preventDefault();
+            });
+        });
+        function borrowMoney(id) {
+            var walletPwd = prompt("Please enter your password", "");
+            $.ajax({
+                method: "POST",
+                url: "/wallet/#{address}/borrow/",
+                data: { lendId: id, pwd: walletPwd }
+              }).done(function( msg ) {
+                    alert(msg);
+                });
+        }
+block content
+    h1 Account #{ address }
+
+    form(id='lend')
+        table
+            tr
+                td
+                    |Amount(TL):
+                td
+                    input(type='text', name='amount') 
+            
+            tr
+                td
+                    |Expiry(Months):
+                td
+                    input(type='text', name='months')
+
+            tr
+                td
+                    |Rate(%)
+                td
+                    input(type='text', name='rate')
+
+            tr
+                td
+                    |Account Password:
+                td
+                    input(type='text', name='pwd')
+
+            tr
+                td
+                    input(type='submit', value='Lend')
+
+
+    br
+    h2 My Lending History
+    
+    table(id='lending_history', border=1)
+        th ID
+        th Amount
+        th Rate
+        th Expiry
+        th Lended Date
+        th Borrowed By
+        th State
+        for lending in lendingList
+            tr
+                td #{ lending.ID }
+                td #{ lending.amount } TL
+                td #{ lending.rate }%
+                td #{ lending.months } Month(s)
+                td #{ lending.state != 'AVAILABLE' && (new Date(lending.lendDate * 1)).toUTCString() || 'NOT LENDED' }
+                td #{ lending.debtor == 0x0 && '-' || lending.debtor }  
+                td #{ lending.state }
+    
+    br
+    h2 My Debt History
+
+    table(id='debt_history', border=1)
+        th ID
+        th Amount
+        th Lended By
+        th Borrow Date
+        th Expiry Date
+        th State
+        for debt in debtList
+            tr
+                td #{ debt.ID }
+                td #{ debt.amount.toFixed(2) } TL
+                td #{ debt.lender }
+                td #{ debt.borrowDate.toUTCString() }
+                td #{ debt.expiryDate.toUTCString() }
+                td #{ debt.state }
+
+    br
+    h2 Active Lendings to Borrow
+
+    table(id='active_lendings', border=1)
+        th ID
+        th Amount
+        th Rate
+        th Expiry
+        th Lended Date
+        th Borrow?
+        for lend in allLendings
+            tr
+                td #{ lend.ID }
+                td #{ lend.amount } TL
+                td #{ lend.rate }%
+                td #{ lend.months } Month(s)
+                td #{ (new Date(lend.lendDate * 1)).toUTCString() }
+                td
+                    a(href='#', onClick='borrowMoney("' + lend.ID + '"); return false;')
+                        div(style='height:100%;width:100%') Borrow

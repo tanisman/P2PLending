@@ -1,0 +1,22 @@
+﻿extends layout
+
+block content
+    p Create New Account
+    form(method='post', action='/accounts')
+        | Password:
+        input(type='text', name='accpwd')  
+        input(type='submit', value='Create')
+    
+    br
+    br
+    br
+
+    table(id='accounts_table', border=1)
+        th Address
+        th Balance
+        for account in accountList
+            tr
+                td
+                    a(href='/wallet/' + account.address )
+                        div(style='height:100%;width:100%') #{ account.address }
+                td #{ account.balance } AKT

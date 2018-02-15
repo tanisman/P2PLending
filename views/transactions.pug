@@ -1,0 +1,24 @@
+﻿extends layout
+
+block script
+    script.
+            $(function () {
+            var socket = io();
+            socket.on('update transaction', function(msg){
+              $('#transactions_table').append(msg);
+             });
+           });
+
+
+block content
+    h1 Transactions
+
+    table(id='transactions_table', border=1)
+        th From
+        th To
+        th Value
+        for transaction in transactionList
+            tr
+                td #{ transaction.from }
+                td #{ transaction.to }
+                td #{ transaction.value / 10e5 } AKT
